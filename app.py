@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # MongoDB configuration
-app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/inventory_db")
+app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb+srv://admin:<admin@0119>@cluster0.pkdkx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 mongo = PyMongo(app)
 
 # Routes

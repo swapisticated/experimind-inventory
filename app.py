@@ -5,7 +5,6 @@ from urllib.parse import quote_plus
 from datetime import datetime
 import os
 import logging
-import certifi
 from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables
@@ -16,15 +15,14 @@ print("MONGO_URI:", os.getenv('MONGO_URI'))
 app = Flask(__name__)
 
 # MongoDB Atlas Configuration
-MONGO_URI = os.getenv('MONGO_URI')
+MONGO_URI = os.getenv('MONGO_URI', 'your_default_uri')  # Get from environment variable
 
-# Configure MongoDB with updated SSL settings
+# Configure MongoDB with SSL settings
 app.config["MONGO_URI"] = MONGO_URI
-app.config["MONGO_TLS"] = True
-app.config["MONGO_TLSALLOWINVALIDCERTIFICATES"] = True
-app.config["MONGO_TLS_CA_FILE"] = certifi.where()
-app.config["MONGO_CONNECT_TIMEOUT_MS"] = 30000
-app.config["MONGO_SOCKET_TIMEOUT_MS"] = 30000
+app.config["MONGO_SSL"] = True
+app.config["MONGO_SSL_CERT_REQS"] = None  # Don't verify SSL certificate
+app.config["MONGO_CONNECT_TIMEOUT_MS"] = 30000  # Increase timeout
+app.config["MONGO_SOCKET_TIMEOUT_MS"] = 30000  # Increase timeout
 
 mongo = PyMongo(app)
 
@@ -204,17 +202,14 @@ def resources():
             if mongo.db.resources.find_one({"name": data['name']}):
                 return jsonify({"error": "Resource already exists"}), 400
                 
-            # Set available_quantity equal to max_units initially
-            max_units = data['max_units']
             mongo.db.resources.insert_one({
                 "name": data['name'],
-                "max_units": max_units,
-                "available_quantity": max_units  # Set to max initially
+                "required_quantity": 0,
+                "available_quantity": 0
             })
             return jsonify({"message": "Resource added"}), 201
 
     except Exception as e:
-        logging.error(f"Error in resources: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # Update required quantity
@@ -231,7 +226,6 @@ def update_required(resource_name):
         return jsonify({"message": "Required quantity updated"}), 200
 
     except Exception as e:
-        logging.error(f"Error in update_required: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # Update available quantity
@@ -249,9 +243,6 @@ def update_quantity(resource_name):
         if new_quantity < 0:
             return jsonify({"error": "Not enough quantity available"}), 400
             
-        if new_quantity > resource['max_units']:
-            return jsonify({"error": "Cannot exceed maximum units"}), 400
-            
         mongo.db.resources.update_one(
             {"name": resource_name},
             {"$set": {"available_quantity": new_quantity}}
@@ -259,7 +250,6 @@ def update_quantity(resource_name):
         return jsonify({"message": "Quantity updated"}), 200
 
     except Exception as e:
-        logging.error(f"Error in update_quantity: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # Run Flask app

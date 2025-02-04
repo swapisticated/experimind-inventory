@@ -3,3 +3,4 @@ flask-pymongo==2.3.0
 python-dotenv==1.0.0
 Werkzeug==3.0.1
 gunicorn
+certifi==2024.2.2

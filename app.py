@@ -5,14 +5,25 @@ from urllib.parse import quote_plus
 from datetime import datetime
 import os
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables
+
+# Add this line to debug
+print("MONGO_URI:", os.getenv('MONGO_URI'))
 
 app = Flask(__name__)
 
 # MongoDB Atlas Configuration
-MONGO_URI = "mongodb+srv://swap:GIRIxVl2B5hZVJGv@cluster0.gfjob.mongodb.net/inventory?retryWrites=true&w=majority&appName=Cluster0&tls=true&tlsAllowInvalidCertificates=true"
+MONGO_URI = os.getenv('MONGO_URI', 'your_default_uri')  # Get from environment variable
 
-# Configure MongoDB
+# Configure MongoDB with SSL settings
 app.config["MONGO_URI"] = MONGO_URI
+app.config["MONGO_SSL"] = True
+app.config["MONGO_SSL_CERT_REQS"] = None  # Don't verify SSL certificate
+app.config["MONGO_CONNECT_TIMEOUT_MS"] = 30000  # Increase timeout
+app.config["MONGO_SOCKET_TIMEOUT_MS"] = 30000  # Increase timeout
+
 mongo = PyMongo(app)
 
 logging.basicConfig(level=logging.DEBUG)

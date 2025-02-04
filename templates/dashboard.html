@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Inventory Dashboard</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script defer src="/static/script.js"></script>
 </head>
 <body>
-    <h2>Dashboard</h2>
-    <button onclick="logout()">Logout</button>
+    <nav class="top-nav">
+        <h2>Inventory Management</h2>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div class="add-resource-form">
+            <div class="input-group">
+                <input type="text" id="newResource" placeholder="Resource Name">
+                <input type="number" id="maxUnits" placeholder="Maximum Units" min="0">
+            </div>
+            <button onclick="addResource()" class="primary-btn">Add Resource</button>
+        </div>
+
+        <main class="resources-grid">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Resource</th>
+                        <th>Maximum Units</th>
+                        <th>Available</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="resourcesList">
+                    <!-- Resources will be listed here -->
+                </tbody>
+            </table>
+        </main>
+    </div>
 </body>
 </html>
